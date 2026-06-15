@@ -335,6 +335,28 @@
     text-align:center;margin:18px 0 4px;line-height:1.6;
   }
 
+  /* ---- Hidratação ---- */
+  .water{
+    background:var(--panel);border:1px solid var(--line);border-radius:14px;
+    padding:14px 16px;margin-bottom:12px;transition:.15s;
+  }
+  .water.full{border-color:rgba(63,217,201,.45);background:linear-gradient(180deg,rgba(63,217,201,.06),transparent)}
+  .water-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:11px;gap:10px}
+  .water-head .nm{font-weight:600;font-size:14px;display:flex;align-items:baseline;gap:8px}
+  .water-head .nm small{font-family:var(--mono);font-size:10px;color:var(--ink-faint);font-weight:400;letter-spacing:.04em}
+  .water-head .amt{font-family:var(--mono);font-size:12px;color:var(--ink-faint);white-space:nowrap}
+  .water.full .amt{color:var(--phosphor)}
+  .water-cups{display:flex;gap:6px}
+  .cup{
+    flex:1;height:40px;border-radius:6px;border:1px solid var(--line);
+    background:var(--bg);position:relative;overflow:hidden;cursor:pointer;
+    display:flex;align-items:flex-end;transition:border-color .15s;
+  }
+  .cup:hover{border-color:var(--line-soft)}
+  .cup .fill{width:100%;height:0;background:var(--phosphor);opacity:.8;transition:height .25s}
+  .cup.on{border-color:var(--phosphor)}
+  .cup.on .fill{height:100%}
+
   .rest-note{
     text-align:center;padding:40px 16px;color:var(--ink-faint);
     font-family:var(--mono);font-size:13px;letter-spacing:.04em;
@@ -435,7 +457,7 @@ const PLANO = {
       {n:5,nome:"Cadeira extensora",tipo:"piramide",sp:[30,35,40,45]},
       {n:6,nome:"Flexão plantar em pé c/ carga",tipo:"fixa",series:5,reps:15,sp:20}
     ]},
-  D:{dia:"Sexta",foco:"Peito · Ombro · Tríceps (ênfase 2)",
+  D:{dia:"Quinta",foco:"Peito · Ombro · Tríceps (ênfase 2)",
     aquecimento:[
       ["Aeróbio","40 min"],["Mobilidade de caixa torácica","2×8"],["Externa de ombro c/ elástico","2×15"]
     ],
@@ -447,7 +469,7 @@ const PLANO = {
       {n:5,nome:"Tríceps corda",tipo:"piramide",sp:[15,20,25,30]},
       {n:6,nome:"Abdominal infra na paralela",tipo:"fixa",series:5,reps:15,sp:null,nota:"peso corporal · carga entre joelhos se sobrar"}
     ]},
-  E:{dia:"Sábado",foco:"Costas · Bíceps (ênfase 2)",
+  E:{dia:"Sexta",foco:"Costas · Bíceps (ênfase 2)",
     aquecimento:[
       ["Aeróbio","40 min"],["Mobilidade de caixa torácica","2×8"],["Externa de ombro c/ elástico","2×15"]
     ],
@@ -459,10 +481,10 @@ const PLANO = {
       {n:5,nome:"Rosca direta barra W",tipo:"piramide",sp:[14,16,18,20],nota:"total c/ barra"},
       {n:6,nome:"Rosca alternada",tipo:"piramide",sp:[10,11,12,14],nota:"kg por braço"}
     ]},
-  F:{dia:"Domingo",foco:"Recuperação ativa",aquecimento:[],ex:[],rest:"Só aeróbio — 40 min"},
-  X:{dia:"Quinta",foco:"Recuperação ativa",aquecimento:[],ex:[],rest:"Só aeróbio — 40 min"}
+  SAB:{dia:"Sábado",foco:"Pedalada",aquecimento:[],ex:[],rest:"Pedalada — 1 h",glyph:"◎",sub:"1 h em ritmo de conversa (zona 2)"},
+  DOM:{dia:"Domingo",foco:"Pedalada",aquecimento:[],ex:[],rest:"Pedalada — 1 h",glyph:"◎",sub:"1 h em ritmo de conversa (zona 2)"}
 };
-const ORDER=["A","B","C","X","D","E","F"];
+const ORDER=["A","B","C","D","E","SAB","DOM"];
 const REPS_PIR=[12,10,8,6];
 
 /* ====================== PLANO ALIMENTAR ====================== */
@@ -477,7 +499,7 @@ const MEALS=[
 /* ====================== ESTADO ====================== */
 const KEY="painelHipertrofia_v1";
 let state=load();
-let activeDay=state.activeDay||"A";
+let activeDay=PLANO[state.activeDay]?state.activeDay:"A";
 let mode="treino";
 let nutriDate=todayISO();
 
@@ -527,7 +549,7 @@ function renderTabs(){
     const p=PLANO[d];
     const b=document.createElement("button");
     b.className="day-tab"+(d===activeDay?" active":"");
-    const label=(d==="X")?"Qui":(d==="F")?"Dom":d;
+    const label=(p.ex&&p.ex.length)?d:p.dia.slice(0,3);
     b.innerHTML=`<div class="l">${label}</div><div class="d">${p.dia}</div>`;
     b.onclick=()=>{activeDay=d;state.activeDay=d;save();render();};
     nav.appendChild(b);
@@ -560,6 +582,7 @@ function updateStatus(day,n){
 }
 
 function render(){
+  if(!PLANO[activeDay]){activeDay="A";state.activeDay="A";}
   renderTabs();
   document.getElementById("weekNum").textContent=state.semana;
   const p=PLANO[activeDay];
@@ -568,7 +591,9 @@ function render(){
   c.innerHTML="";
 
   if(p.rest){
-    c.innerHTML=`<div class="rest-note"><div class="big">○</div>${p.rest}<br><span style="color:var(--ink-faint);font-size:11px">descanso é onde o músculo cresce</span></div>`;
+    const glyph=p.glyph||"○";
+    const sub=p.sub||"descanso é onde o músculo cresce";
+    c.innerHTML=`<div class="rest-note"><div class="big">${glyph}</div>${p.rest}<br><span style="color:var(--ink-faint);font-size:11px">${sub}</span></div>`;
     return;
   }
 
@@ -748,6 +773,32 @@ function renderNutri(){
       <div class="sub">${a.pct===100?"plano fechado ✓":a.pct>=80?"quase lá":"toque pra marcar"}</div>
     </div>`;
   v.appendChild(sum);
+
+  // hidratação — meta 2 L em copos de 250 mL
+  const WUNIT=250,WCUPS=8;
+  const dN=nutriDay(nutriDate);
+  const cups=Math.max(0,Math.min(WCUPS,dN.agua||0));
+  const litros=(cups*WUNIT/1000).toFixed(2).replace(".",",");
+  const full=cups>=WCUPS;
+  const water=document.createElement("div");
+  water.className="water"+(full?" full":"");
+  let cupsHTML="";
+  for(let i=0;i<WCUPS;i++)cupsHTML+=`<div class="cup${i<cups?" on":""}" data-c="${i}"><div class="fill"></div></div>`;
+  water.innerHTML=`
+    <div class="water-head">
+      <div class="nm">Hidratação <small>250 mL / copo</small></div>
+      <div class="amt">${litros} L / 2 L${full?" ✓":""}</div>
+    </div>
+    <div class="water-cups">${cupsHTML}</div>`;
+  water.querySelectorAll(".cup").forEach(cup=>{
+    cup.onclick=()=>{
+      const i=parseInt(cup.dataset.c,10);
+      const cur=nutriDay(nutriDate).agua||0;
+      nutriDay(nutriDate).agua=(cur===i+1)?i:i+1;
+      save();renderNutri();
+    };
+  });
+  v.appendChild(water);
 
   // refeições
   const day=nutriDay(nutriDate);
@@ -945,7 +996,7 @@ document.getElementById("importFile").onchange=(e)=>{
     try{const d=JSON.parse(r.result);
       if(!d.log)throw new Error("formato inválido");
       d.nutri=d.nutri||{};d.peso=d.peso||{};
-      state=d;activeDay=state.activeDay||"A";save();
+      state=d;activeDay=PLANO[state.activeDay]?state.activeDay:"A";save();
       if(mode==="nutri")renderNutri();else if(mode==="peso")renderPeso();else render();
       alert("Backup restaurado.");
     }catch(err){alert("Arquivo inválido: "+err.message);}
