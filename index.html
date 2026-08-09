@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DavilaTeam7 · Diário</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#120e0c;
+    --surface:#1c1613;
+    --surface-2:#241c18;
+    --surface-3:#2b2119;
+    --border:#3a2d26;
+    --text:#f3ece4;
+    --text-muted:#a8988b;
+    --ember:#d9502f;
+    --ember-dim: #7a3323;
+    --gold:#cfa23b;
+    --gold-dim:#4a3c1e;
+    --slate:#5c86a8;
+    --slate-dim:#213544;
+    --done:#6b9a6e;
+    --done-dim:#233524;
+    --radius: 14px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(ellipse 900px 500px at 15% -10%, rgba(217,80,47,0.10), transparent 60%),
+      radial-gradient(ellipse 700px 500px at 100% 0%, rgba(207,162,59,0.08), transparent 55%),
+      var(--bg);
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+  .display{font-family:'Bebas Neue',sans-serif; letter-spacing:0.03em;}
+  .wrap{max-width:760px;margin:0 auto;padding:28px 18px 80px;}
+
+  .brand{display:flex;align-items:baseline;gap:10px;margin-bottom:4px;}
+  .brand .mark{color:var(--ember);font-size:15px;font-weight:800;letter-spacing:0.18em;text-transform:uppercase;}
+  .brand .sub{color:var(--text-muted);font-size:12px;letter-spacing:0.1em;text-transform:uppercase;}
+  h1.title{font-size:40px;margin:2px 0 20px;line-height:0.95;}
+
+  .claw{width:64px;height:14px;margin:6px 0 22px;opacity:0.85;}
+
+  .day-nav{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:16px 18px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    margin-bottom:14px;
+  }
+  .nav-btn{
+    background:var(--surface-2);
+    border:1px solid var(--border);
+    color:var(--text);
+    width:38px;height:38px;border-radius:10px;
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer; font-size:18px; flex-shrink:0;
+    transition:background .15s ease, transform .1s ease;
+  }
+  .nav-btn:hover{background:#2c221c;}
+  .nav-btn:active{transform:scale(0.94);}
+  .nav-btn:disabled{opacity:0.3;cursor:default;}
+  .day-info{flex:1;text-align:center;}
+  .day-info .dow{font-size:26px;line-height:1;}
+  .day-info .date{color:var(--text-muted);font-size:12px;letter-spacing:0.06em;margin-top:2px;}
+  .badges{display:flex;gap:8px;justify-content:center;margin-top:10px;flex-wrap:wrap;}
+  .badge{
+    font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;
+    padding:5px 10px;border-radius:999px;border:1px solid transparent;
+  }
+  .badge.training{background:var(--slate-dim);color:#8fb6d4;border-color:#2e4a5e;}
+  .badge.rest{background:#2a221d;color:var(--text-muted);border-color:var(--border);}
+  .badge.carb-alto{background:var(--gold-dim);color:var(--gold);border-color:#5c4a24;cursor:pointer;}
+  .badge.carb-baixo{background:var(--slate-dim);color:var(--slate);border-color:#2e4a5e;cursor:pointer;}
+  .badge.carb-alto:hover,.badge.carb-baixo:hover{filter:brightness(1.2);}
+
+  .progress-ring-wrap{display:flex;align-items:center;justify-content:center;flex-direction:column;flex-shrink:0;}
+  .progress-ring-wrap .pct{font-family:'Bebas Neue';font-size:15px;margin-top:2px;color:var(--text-muted);}
+
+  .strip{
+    display:flex; gap:6px; overflow-x:auto; padding:4px 2px 14px;
+    margin-bottom:6px;
+  }
+  .strip::-webkit-scrollbar{height:5px;}
+  .strip::-webkit-scrollbar-thumb{background:var(--border);border-radius:10px;}
+  .strip-day{
+    flex:0 0 auto; width:44px; height:56px; border-radius:10px;
+    background:var(--surface); border:1px solid var(--border);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    cursor:pointer; gap:3px; position:relative;
+    transition:border-color .15s ease, background .15s ease;
+  }
+  .strip-day.active{border-color:var(--ember); background:var(--ember-dim);}
+  .strip-day .n{font-family:'Bebas Neue';font-size:17px;}
+  .strip-day .dot{width:6px;height:6px;border-radius:50%;}
+  .strip-day .dot.alto{background:var(--gold);}
+  .strip-day .dot.baixo{background:var(--slate);}
+  .strip-day .check{position:absolute;top:3px;right:3px;font-size:9px;color:var(--done);}
+
+  .section{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    margin-bottom:12px;
+    overflow:hidden;
+  }
+  .section-head{
+    padding:14px 16px; display:flex; align-items:center; justify-content:space-between;
+    cursor:pointer; user-select:none;
+  }
+  .section-head .htxt{display:flex;align-items:center;gap:10px;}
+  .section-head .icon{font-size:16px;width:20px;text-align:center;}
+  .section-head .label{font-weight:700;font-size:14.5px;}
+  .section-head .time{color:var(--text-muted);font-size:11.5px;font-weight:500;margin-left:6px;}
+  .section-head .count{color:var(--text-muted);font-size:12px;font-variant-numeric:tabular-nums;}
+  .section-body{padding:0 16px 14px;display:none;}
+  .section.open .section-body{display:block;}
+  .section.open .chev{transform:rotate(180deg);}
+  .chev{transition:transform .15s ease;color:var(--text-muted);font-size:11px;}
+
+  .item{
+    display:flex; align-items:flex-start; gap:10px;
+    padding:9px 0; border-top:1px solid var(--border);
+  }
+  .item:first-child{border-top:none;}
+  .item.extra{background:linear-gradient(90deg, rgba(207,162,59,0.08), transparent); margin:0 -16px; padding-left:16px; padding-right:16px; border-radius:6px;}
+  .chk{
+    width:20px;height:20px;border-radius:6px;border:1.5px solid var(--border);
+    background:var(--surface-2); flex-shrink:0; margin-top:1px;
+    display:flex;align-items:center;justify-content:center;cursor:pointer;
+    transition:background .12s ease, border-color .12s ease;
+  }
+  .chk.checked{background:var(--done-dim);border-color:var(--done);}
+  .chk.checked::after{content:'✓';color:var(--done);font-size:13px;font-weight:800;}
+  .item-label{font-size:14px;line-height:1.4;cursor:pointer;}
+  .item.done .item-label{color:var(--text-muted);text-decoration:line-through;text-decoration-color:var(--border);}
+  .item-label .tag{color:var(--gold);font-weight:700;}
+
+  .empty-note{color:var(--text-muted);font-size:13px;padding:10px 0;}
+
+  .tabbar{
+    display:flex; gap:6px; margin-bottom:14px; background:var(--surface); border:1px solid var(--border);
+    border-radius:12px; padding:4px;
+  }
+  .tab-btn{
+    flex:1; text-align:center; padding:10px 8px; border-radius:9px; cursor:pointer;
+    font-weight:700; font-size:13px; letter-spacing:0.02em; color:var(--text-muted);
+    display:flex; align-items:center; justify-content:center; gap:7px;
+    transition:background .15s ease, color .15s ease;
+  }
+  .tab-btn .tab-icon{font-size:14px;}
+  .tab-btn.active{background:var(--ember-dim); color:#ffd9c8;}
+  .tab-btn .tab-count{font-size:11px; font-weight:600; color:inherit; opacity:0.8;}
+
+  .method-note{
+    font-size:12px; color:var(--text-muted); line-height:1.6; padding:10px 12px;
+    background:var(--surface-2); border:1px solid var(--border); border-radius:10px; margin-bottom:12px;
+  }
+  .method-note b{color:var(--text);}
+
+  .exercise-card{
+    border:1px solid var(--border); border-radius:10px; margin-top:10px; overflow:hidden; background:var(--surface-2);
+  }
+  .exercise-card:first-child{margin-top:0;}
+  .exercise-head{
+    padding:9px 12px; font-weight:700; font-size:13.5px; display:flex; align-items:center; justify-content:space-between;
+    background:var(--surface-3); gap:8px;
+  }
+  .exercise-head .pos{
+    font-family:'Bebas Neue'; font-size:12px; color:var(--ember); border:1px solid var(--ember-dim);
+    border-radius:6px; padding:1px 6px; flex-shrink:0;
+  }
+  .exercise-head .ename{flex:1;}
+  .exercise-head .ecount{font-size:11px;color:var(--text-muted);font-weight:500;}
+  .stage-row{
+    display:flex; align-items:flex-start; gap:10px; padding:8px 12px; border-top:1px solid var(--border);
+  }
+  .stage-row .stage-txt{flex:1;}
+  .stage-row .stage-name{font-size:13px; font-weight:600;}
+  .stage-row .stage-meta{font-size:11.5px; color:var(--text-muted); margin-top:1px;}
+  .stage-row.done .stage-name{color:var(--text-muted); text-decoration:line-through; text-decoration-color:var(--border);}
+
+  footer{text-align:center;color:var(--text-muted);font-size:11.5px;margin-top:24px;line-height:1.6;}
+  footer b{color:var(--text);}
+
+  @media (max-width:420px){
+    h1.title{font-size:32px;}
+    .day-info .dow{font-size:21px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="brand"><span class="mark">DavilaTeam7</span><span class="sub">· Erick Azevedo</span></div>
+  <h1 class="title display">Diário de execução</h1>
+  <svg class="claw" viewBox="0 0 64 14" fill="none">
+    <path d="M2 12 C 10 2, 14 2, 18 10" stroke="#d9502f" stroke-width="2" stroke-linecap="round"/>
+    <path d="M24 12 C 32 2, 36 2, 40 10" stroke="#cfa23b" stroke-width="2" stroke-linecap="round"/>
+    <path d="M46 12 C 54 2, 58 2, 62 10" stroke="#5c86a8" stroke-width="2" stroke-linecap="round"/>
+  </svg>
+
+  <div class="strip" id="strip"></div>
+
+  <div class="day-nav">
+    <div class="nav-btn" id="prevBtn">‹</div>
+    <div class="day-info">
+      <div class="dow display" id="dowLabel">—</div>
+      <div class="date" id="dateLabel">—</div>
+      <div class="badges" id="badges"></div>
+    </div>
+    <div class="progress-ring-wrap">
+      <svg width="52" height="52" viewBox="0 0 52 52">
+        <circle cx="26" cy="26" r="22" fill="none" stroke="#2a221d" stroke-width="5"/>
+        <circle id="ringFg" cx="26" cy="26" r="22" fill="none" stroke="#d9502f" stroke-width="5"
+          stroke-linecap="round" transform="rotate(-90 26 26)" stroke-dasharray="138" stroke-dashoffset="138"/>
+      </svg>
+      <div class="pct" id="pctLabel">0%</div>
+    </div>
+    <div class="nav-btn" id="nextBtn">›</div>
+  </div>
+
+  <div class="tabbar" id="tabbar"></div>
+  <div id="sections"></div>
+
+  <footer>
+    Ciclo de carboidrato 2:1 aplicado a partir de 10/08 — toque no badge <b>alto/baixo</b> em cada dia para corrigir manualmente.<br>
+    Descanso fixo em <b>sábado e domingo</b>. Suas marcações ficam salvas neste dispositivo.
+  </footer>
+</div>
+
+<script>
+// ---------- DATA ----------
+const START = new Date(2026,7,10); // 10 ago 2026
+const TOTAL_DAYS = 30;
+const DOW_FULL = ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
+
+// Descanso fixo sáb/dom. Semana de treino: Seg=A, Ter=B, Qua=C, Qui=A2, Sex=B2
+const DOW_TO_TRAINING = {1:'A1', 2:'B1', 3:'C', 4:'A2', 5:'B2', 6:'REST', 0:'REST'};
+
+const MOB_UPPER = [
+  {id:'mob_caixa', label:'Mobilidade de caixa torácica', meta:'2 séries de 6–8 respirações profundas'},
+  {id:'mob_ombro', label:'Externa de ombro com elástico', meta:'2 séries de 12–15 repetições por braço'},
+];
+const MOB_LOWER = [
+  {id:'mob_tornozelo', label:'Mobilidade de tornozelo em avanço', meta:'2 séries de 10 repetições por perna'},
+];
+
+// Estágios padrão da estrutura de séries (ver ESTRUTURA DE SÉRIES DO TREINAMENTO)
+const STAGE = {
+  aquecimento: {key:'aquecimento', name:'Aquecimento', sets:'1–2 séries', reps:'8–10 reps', carga:'leve a moderada — não busca falha nem tonelagem, só prepara o corpo'},
+  feeder: {key:'feeder', name:'Reconhecimento (feeder set)', sets:'1–3 séries', reps:'3–5 reps', carga:'moderada — ajusta postura, amplitude e sente o peso ideal'},
+  trabalho1: {key:'trabalho1', name:'Trabalho 1', sets:'1 série', reps:'7–9 reps', carga:'alta, porém controlada — não precisa ir à falha'},
+  trabalhomax: {key:'trabalhomax', name:'Trabalho máxima', sets:'1 série', reps:'5–7 reps', carga:'muito alta — pode e deve ir à falha, sem perder a técnica'},
+};
+
+// exercises: {name, special:{sets,reps,carga}} — 'special' substitui a sequência padrão
+const TRAININGS = {
+  A1: {label:'Treino A · Push', mobility:MOB_UPPER, exercises:[
+    {name:'Supino inclinado Smith ou máquina'},
+    {name:'Supino reto halter'},
+    {name:'Cross over polia alta'},
+    {name:'Elevação lateral halter'},
+    {name:'Tríceps roldana'},
+    {name:'Tríceps roldana unilateral', note:'pedir vídeo pro coach'},
+    {name:'Abdominal na prancha declinado c/ carga', special:{sets:'5 séries', reps:'12–15 reps', carga:'com carga adicional'}},
+  ]},
+  B1: {label:'Treino B · Pull', mobility:MOB_UPPER, exercises:[
+    {name:'Barra fixa', special:{sets:'4 séries', reps:'até a falha', carga:'peso corporal'}},
+    {name:'Puxada supinado frontal'},
+    {name:'Remada baixa fechada triângulo'},
+    {name:'Serrote'},
+    {name:'Rosca direta BW'},
+    {name:'Rosca alternado'},
+  ]},
+  C: {label:'Treino C · Pernas', mobility:MOB_LOWER, exercises:[
+    {name:'Cadeira abdutora'},
+    {name:'Agachamento livre'},
+    {name:'Leg press 45°'},
+    {name:'Cadeira flexora'},
+    {name:'Cadeira extensora'},
+    {name:'Flexão plantar em pé c/ carga no talo', special:{sets:'5 séries', reps:'12–15 reps', carga:'com carga no talo'}},
+  ]},
+  A2: {label:'Treino A · Push (variação)', mobility:MOB_UPPER, exercises:[
+    {name:'Desenvolvimento Smith ou máquina'},
+    {name:'Supino inclinado halter pegada neutro'},
+    {name:'Fly / Voador'},
+    {name:'Elevação lateral halter'},
+    {name:'Tríceps corda'},
+    {name:'Abdominal infra na paralela', special:{sets:'5 séries', reps:'12–15 reps', carga:'com carga adicional'}},
+  ]},
+  B2: {label:'Treino B · Pull (variação)', mobility:MOB_UPPER, exercises:[
+    {name:'Puxada fechada triângulo'},
+    {name:'Remada cruzada supinado'},
+    {name:'Pulldown'},
+    {name:'Fly pronado inverso'},
+    {name:'Rosca direta barra W'},
+    {name:'Rosca alternado'},
+  ]},
+  REST: {label:'Descanso — apenas aeróbio', mobility:[], exercises:[]}
+};
+
+function sequenceFor(exIdx, ex){
+  if(ex.special){
+    return [{key:'especial', name:'Prescrição específica', sets:ex.special.sets, reps:ex.special.reps, carga:ex.special.carga}];
+  }
+  const position = exIdx+1;
+  if(position<=2){
+    return [STAGE.aquecimento, STAGE.feeder, STAGE.trabalho1, STAGE.trabalhomax];
+  }
+  return [STAGE.feeder, STAGE.trabalho1, STAGE.trabalhomax];
+}
+
+const MEALS_LOW = {
+  cafeManha:{label:'Café da manhã', time:'08:00–08:30', items:[
+    {id:'pao', label:'2 fatias de pão de forma tradicional (ou 1 pão francês)'},
+    {id:'ovos', label:'2 ovos inteiros + 2 claras'},
+    {id:'queijo', label:'1 fatia de queijo mussarela (ou 10g requeijão light)'},
+    {id:'mamao', label:'150g mamão'},
+  ]},
+  almoco:{label:'Almoço', time:'12:00–13:00', items:[
+    {id:'proteina', label:'150g peito de frango (ou 140g carne vermelha magra)'},
+    {id:'legumes', label:'150g mix de legumes'},
+    {id:'folhas', label:'Folhas verdes à vontade'},
+    {id:'fruta', label:'100g abacaxi (ou 1 maçã)'},
+  ]},
+  cafeTarde:{label:'Café da tarde', time:'16:00–16:30', items:[
+    {id:'pao', label:'2 fatias de pão de forma tradicional'},
+    {id:'frango', label:'100g peito de frango'},
+    {id:'requeijao', label:'20g requeijão light'},
+  ]},
+  janta:{label:'Janta', time:'19:30–20:00', items:[
+    {id:'proteina', label:'140g peito de frango (ou 130g carne vermelha magra)'},
+    {id:'carbo', label:'160g arroz branco/macarrão (ou 320g batata inglesa / 270g batata doce / 140g aipim)'},
+    {id:'legumes', label:'150g mix de legumes'},
+    {id:'folhas', label:'Folhas verdes à vontade'},
+    {id:'fruta', label:'100g abacaxi (ou 1 maçã)'},
+  ]},
+  ceia:{label:'Ceia', time:'22:00–22:30', items:[
+    {id:'whey', label:'40g whey protein concentrado'},
+    {id:'maca', label:'1 maçã'},
+    {id:'abacaxi', label:'100g abacaxi'},
+    {id:'iogurte', label:'160g iogurte zero'},
+    {id:'castanha', label:'15g amendoim ou castanha do pará'},
+    {id:'chia', label:'10g chia'},
+  ]},
+};
+const MEALS_EXTRA_ALTO = {
+  cafeManha:[{id:'extra_pao', label:'+ 2 fatias de pão de forma', extra:true}],
+  almoco:[{id:'extra_carbo', label:'+ 400g arroz branco ou macarrão', extra:true}],
+  cafeTarde:[{id:'extra_pao', label:'+ 2 fatias de pão de forma', extra:true},{id:'extra_frango', label:'+ 30g peito de frango', extra:true}],
+  janta:[{id:'extra_carbo', label:'+ 400g arroz branco ou macarrão', extra:true}],
+  ceia:[],
+};
+
+const ACORDAR = [
+  {id:'agua', label:'200ml de água'},
+  {id:'pretreino_horus', label:'1 scoop de pré-treino Horus'},
+  {id:'ioimbina', label:'1 comprimido de ioimbina'},
+  {id:'dilatex', label:'1 comprimido de Dilatex'},
+  {id:'betaalanina', label:'1 comprimido de beta-alanina'},
+  {id:'creatina_manha', label:'1 scoop de creatina'},
+];
+const SUPLEMENTOS_MANHA = [
+  {id:'omega3', label:'Ômega 3 — 1g'},
+  {id:'vitaminas', label:'Composto de vitaminas — 1 dose'},
+];
+const INTRA_TREINO = [
+  {id:'agua_intra', label:'2 litros de água'},
+  {id:'sal', label:'2g sal'},
+  {id:'creatina', label:'10g creatina'},
+  {id:'tang', label:'1 pacote de suco Tang'},
+];
+
+// ---------- STATE ----------
+let currentIndex = 0;
+let dayCache = {};
+let openSections = {rotina:true, refeicoes:true, treino:true};
+let currentTab = 'alimentacao';
+
+function dateStrFor(i){ const d=new Date(START); d.setDate(d.getDate()+i); return d.toISOString().slice(0,10); }
+function dateObjFor(i){ const d=new Date(START); d.setDate(d.getDate()+i); return d; }
+function defaultCarb(i){ return (i % 3 === 2) ? 'alto' : 'baixo'; }
+function carbFor(i, dayData){ if(dayData && dayData.override) return dayData.override; return defaultCarb(i); }
+function trainingKeyFor(i){ return DOW_TO_TRAINING[dateObjFor(i).getDay()]; }
+
+async function loadDay(i){
+  const ds = dateStrFor(i);
+  if(dayCache[ds]) return dayCache[ds];
+  let data = {items:{}, override:null};
+  try{
+    const raw = localStorage.getItem('davilateam7_dia_'+ds);
+    if(raw){
+      const parsed = JSON.parse(raw);
+      data.items = parsed.items || {};
+      data.override = parsed.override || null;
+    }
+  }catch(e){}
+  dayCache[ds] = data;
+  return data;
+}
+async function saveDay(i){
+  const ds = dateStrFor(i);
+  try{ localStorage.setItem('davilateam7_dia_'+ds, JSON.stringify(dayCache[ds])); }
+  catch(e){ console.error('storage error', e); }
+}
+
+function buildDayModel(i){
+  const dow = dateObjFor(i).getDay();
+  const trainKey = trainingKeyFor(i);
+  const training = TRAININGS[trainKey];
+  const isTrainingDay = trainKey !== 'REST';
+  const carb = carbFor(i, dayCache[dateStrFor(i)]);
+
+  const sections = [];
+  sections.push({key:'rotina', icon:'☀', label:'Ao acordar', time:null, items:[...ACORDAR], tab:'alimentacao'});
+
+  if(isTrainingDay){
+    sections.push({key:'intratreino', icon:'💧', label:'Intra-treino', time:null, items:[...INTRA_TREINO], tab:'treino'});
+  }
+
+  ['cafeManha','almoco','cafeTarde','janta','ceia'].forEach(mk=>{
+    const base = MEALS_LOW[mk];
+    let items = base.items.map(it=>({...it}));
+    if(carb==='alto') items = items.concat(MEALS_EXTRA_ALTO[mk].map(it=>({...it})));
+    if(mk==='cafeManha') items = items.concat(SUPLEMENTOS_MANHA.map(it=>({...it})));
+    sections.push({key:mk, icon:'🍽', label:base.label, time:base.time, items, tab:'alimentacao'});
+  });
+
+  // Treino: montado com aeróbio + mobilidade + exercícios com sequência de séries
+  const aerobioItem = {id:'aerobio', label:'AEJ — 60 minutos', meta:'Frequência 120–150 bpm'};
+  const exerciseCards = training.exercises.map((ex,idx)=>({
+    idx, name:ex.name, note:ex.note||null, sequence:sequenceFor(idx, ex)
+  }));
+  sections.push({
+    key:'treino', icon:'🏋', label:training.label, time:null, isTraining:true, tab:'treino',
+    aerobio:aerobioItem, mobility:training.mobility, exerciseCards
+  });
+
+  return {sections, carb, trainKey, isTrainingDay, training};
+}
+
+function fmtDate(d){ return d.toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit'}); }
+
+function countTreino(sec, data){
+  let total=1, done = data.items[sec.aerobio.id]?1:0; // aerobio
+  sec.mobility.forEach(m=>{ total++; if(data.items[m.id]) done++; });
+  sec.exerciseCards.forEach(card=>{
+    card.sequence.forEach(st=>{
+      total++;
+      if(data.items['ex'+card.idx+'_'+st.key]) done++;
+    });
+  });
+  return {total, done};
+}
+
+async function renderStrip(){
+  const strip = document.getElementById('strip');
+  strip.innerHTML='';
+  for(let i=0;i<TOTAL_DAYS;i++){
+    const ds = dateStrFor(i);
+    await loadDay(i);
+    const carb = carbFor(i, dayCache[ds]);
+    const d = dateObjFor(i);
+    const el = document.createElement('div');
+    el.className = 'strip-day'+(i===currentIndex?' active':'');
+    const {total,done} = dayTotals(i);
+    el.innerHTML = `<div class="n display">${d.getDate()}</div><div class="dot ${carb}"></div>${done===total && total>0 ? '<div class="check">✓</div>':''}`;
+    el.onclick = ()=>{ currentIndex=i; renderAll(); };
+    strip.appendChild(el);
+  }
+  const active = strip.querySelector('.strip-day.active');
+  if(active) active.scrollIntoView({inline:'center', block:'nearest'});
+}
+
+function dayTotals(i){
+  const ds = dateStrFor(i);
+  const model = buildDayModel(i);
+  const data = dayCache[ds];
+  let total=0, done=0;
+  model.sections.forEach(sec=>{
+    if(sec.isTraining){
+      const t = countTreino(sec, data);
+      total+=t.total; done+=t.done;
+    } else {
+      total += sec.items.length;
+      done += sec.items.filter(it=>data.items[it.id]).length;
+    }
+  });
+  return {total, done};
+}
+
+function tabTotals(i, tab){
+  const ds = dateStrFor(i);
+  const model = buildDayModel(i);
+  const data = dayCache[ds];
+  let total=0, done=0;
+  model.sections.filter(sec=>sec.tab===tab).forEach(sec=>{
+    if(sec.isTraining){
+      const t = countTreino(sec, data);
+      total+=t.total; done+=t.done;
+    } else {
+      total += sec.items.length;
+      done += sec.items.filter(it=>data.items[it.id]).length;
+    }
+  });
+  return {total, done};
+}
+
+async function renderDay(){
+  const i = currentIndex;
+  const ds = dateStrFor(i);
+  await loadDay(i);
+  const d = dateObjFor(i);
+  const model = buildDayModel(i);
+  const data = dayCache[ds];
+
+  document.getElementById('dowLabel').textContent = DOW_FULL[d.getDay()];
+  document.getElementById('dateLabel').textContent = fmtDate(d) + ' · dia ' + (i+1) + ' de ' + TOTAL_DAYS;
+
+  const badges = document.getElementById('badges');
+  const trainBadge = model.isTrainingDay
+    ? `<span class="badge training">${model.training.label}</span>`
+    : `<span class="badge rest">Descanso</span>`;
+  const carbBadge = `<span class="badge ${model.carb==='alto'?'carb-alto':'carb-baixo'}" id="carbToggle">${model.carb==='alto'?'Carb alto':'Carb baixo'}</span>`;
+  badges.innerHTML = trainBadge + carbBadge;
+  document.getElementById('carbToggle').onclick = async ()=>{
+    const cur = carbFor(i, data);
+    data.override = cur==='alto' ? 'baixo' : 'alto';
+    await saveDay(i);
+    renderAll();
+  };
+
+  document.getElementById('prevBtn').disabled = (i===0);
+  document.getElementById('nextBtn').disabled = (i===TOTAL_DAYS-1);
+
+  const alimTotals = tabTotals(i, 'alimentacao');
+  const treinoTotals = tabTotals(i, 'treino');
+  const tabbar = document.getElementById('tabbar');
+  tabbar.innerHTML = `
+    <div class="tab-btn ${currentTab==='alimentacao'?'active':''}" id="tabAlim">
+      <span class="tab-icon">🍽</span> Plano alimentar <span class="tab-count">${alimTotals.done}/${alimTotals.total}</span>
+    </div>
+    <div class="tab-btn ${currentTab==='treino'?'active':''}" id="tabTreino">
+      <span class="tab-icon">🏋</span> Treino <span class="tab-count">${treinoTotals.done}/${treinoTotals.total}</span>
+    </div>
+  `;
+  document.getElementById('tabAlim').onclick = ()=>{ currentTab='alimentacao'; renderDay(); };
+  document.getElementById('tabTreino').onclick = ()=>{ currentTab='treino'; renderDay(); };
+
+  const container = document.getElementById('sections');
+  container.innerHTML='';
+
+  model.sections.filter(sec=>sec.tab===currentTab).forEach(sec=>{
+    const secEl = document.createElement('div');
+    secEl.className = 'section' + (openSections[sec.key]!==false ? ' open':'');
+
+    let doneCount, totalCount, bodyHtml='';
+    if(sec.isTraining){
+      const t = countTreino(sec, data);
+      doneCount = t.done; totalCount = t.total;
+    } else {
+      doneCount = sec.items.filter(it=>data.items[it.id]).length;
+      totalCount = sec.items.length;
+    }
+
+    secEl.innerHTML = `
+      <div class="section-head">
+        <div class="htxt">
+          <span class="icon">${sec.icon}</span>
+          <span class="label">${sec.label}</span>
+          ${sec.time?`<span class="time">${sec.time}</span>`:''}
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span class="count">${doneCount}/${totalCount}</span>
+          <span class="chev">▾</span>
+        </div>
+      </div>
+      <div class="section-body"></div>
+    `;
+    const head = secEl.querySelector('.section-head');
+    head.onclick = ()=>{ const isOpen = secEl.classList.toggle('open'); openSections[sec.key]=isOpen; };
+    const body = secEl.querySelector('.section-body');
+
+    if(sec.isTraining){
+      if(sec.exerciseCards.length===0){
+        body.innerHTML = `<div class="empty-note">Dia de descanso — sem musculação, só o aeróbio abaixo.</div>`;
+      } else {
+        const note = document.createElement('div');
+        note.className='method-note';
+        note.innerHTML = `<b>Lógica das séries:</b> aquecimento só nos 2 primeiros exercícios do treino (prepara, não fadiga). A partir daí, todo exercício começa direto pelo reconhecimento (feeder set), seguido de 1 série de trabalho e 1 série de trabalho máxima (até a falha, sem perder a técnica). Cadência 1s concêntrica + 1s excêntrica. Intervalo entre exercícios: até 2–3 min.`;
+        body.appendChild(note);
+      }
+      // aerobio
+      body.appendChild(renderItemRow(sec.aerobio, data, async ()=>{
+        data.items[sec.aerobio.id] = !data.items[sec.aerobio.id];
+        await saveDay(i); renderDay(); updateStripDot(i);
+      }));
+      // mobility
+      sec.mobility.forEach(m=>{
+        body.appendChild(renderItemRow(m, data, async ()=>{
+          data.items[m.id] = !data.items[m.id];
+          await saveDay(i); renderDay(); updateStripDot(i);
+        }));
+      });
+      // exercises
+      sec.exerciseCards.forEach(card=>{
+        const cardEl = document.createElement('div');
+        cardEl.className='exercise-card';
+        const doneN = card.sequence.filter(st=>data.items['ex'+card.idx+'_'+st.key]).length;
+        cardEl.innerHTML = `<div class="exercise-head">
+            <span class="pos">${card.idx+1}</span>
+            <span class="ename">${card.name}${card.note?` <span style="color:var(--text-muted);font-weight:500;">(${card.note})</span>`:''}</span>
+            <span class="ecount">${doneN}/${card.sequence.length}</span>
+          </div>`;
+        card.sequence.forEach(st=>{
+          const stId = 'ex'+card.idx+'_'+st.key;
+          const checked = !!data.items[stId];
+          const row = document.createElement('div');
+          row.className='stage-row'+(checked?' done':'');
+          row.innerHTML = `<div class="chk ${checked?'checked':''}"></div>
+            <div class="stage-txt">
+              <div class="stage-name">${st.name} — ${st.sets} de ${st.reps}</div>
+              <div class="stage-meta">Carga: ${st.carga}</div>
+            </div>`;
+          const toggle = async ()=>{ data.items[stId]=!data.items[stId]; await saveDay(i); renderDay(); updateStripDot(i); };
+          row.querySelector('.chk').onclick = toggle;
+          row.querySelector('.stage-txt').onclick = toggle;
+          cardEl.appendChild(row);
+        });
+        body.appendChild(cardEl);
+      });
+    } else {
+      sec.items.forEach(it=>{
+        body.appendChild(renderItemRow(it, data, async ()=>{
+          data.items[it.id] = !data.items[it.id];
+          await saveDay(i); renderDay(); updateStripDot(i);
+        }));
+      });
+    }
+    container.appendChild(secEl);
+  });
+
+  const {total,done} = dayTotals(i);
+  const pct = total? Math.round(done/total*100) : 0;
+  const circumference = 138;
+  document.getElementById('ringFg').style.strokeDashoffset = circumference - (pct/100)*circumference;
+  document.getElementById('pctLabel').textContent = pct+'%';
+}
+
+function renderItemRow(it, data, onToggle){
+  const checked = !!data.items[it.id];
+  const row = document.createElement('div');
+  row.className = 'item' + (it.extra?' extra':'') + (checked?' done':'');
+  row.innerHTML = `<div class="chk ${checked?'checked':''}"></div><div class="item-label">${it.extra?'<span class="tag">CARB ALTO</span> ':''}${it.label}${it.meta?`<div class="stage-meta">${it.meta}</div>`:''}</div>`;
+  row.querySelector('.chk').onclick = onToggle;
+  row.querySelector('.item-label').onclick = onToggle;
+  return row;
+}
+
+function updateStripDot(i){
+  const strip = document.getElementById('strip');
+  const el = strip.children[i];
+  if(!el) return;
+  const {total,done} = dayTotals(i);
+  const existingCheck = el.querySelector('.check');
+  if(done===total && total>0){
+    if(!existingCheck){ const c=document.createElement('div'); c.className='check'; c.textContent='✓'; el.appendChild(c); }
+  } else if(existingCheck){ existingCheck.remove(); }
+}
+
+async function renderAll(){ await renderDay(); await renderStrip(); }
+
+document.getElementById('prevBtn').onclick = ()=>{ if(currentIndex>0){ currentIndex--; renderAll(); } };
+document.getElementById('nextBtn').onclick = ()=>{ if(currentIndex<TOTAL_DAYS-1){ currentIndex++; renderAll(); } };
+
+(function init(){
+  const today = new Date(); today.setHours(0,0,0,0);
+  const diff = Math.round((today - START)/86400000);
+  currentIndex = (diff>=0 && diff<TOTAL_DAYS) ? diff : 0;
+  renderAll();
+})();
+</script>
+</body>
+</html>
